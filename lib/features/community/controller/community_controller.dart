@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:reddit_clone/core/constants/constants.dart';
+import 'package:reddit_clone/core/failure.dart';
 import 'package:reddit_clone/core/providers/storage_repository_provider.dart';
+import 'package:reddit_clone/core/type_defs.dart';
 import 'package:reddit_clone/core/utils.dart';
 import 'package:reddit_clone/features/auth/controller/auth_controller.dart';
 import 'package:reddit_clone/features/community/repository/community_repository.dart';
@@ -17,7 +19,8 @@ final userCommunitiesProvider = StreamProvider((ref) {
   return communityController.getUserCommunities();
 });
 
-final communityControllerProvider = StateNotifierProvider<CommunityController, bool>((ref) {
+final communityControllerProvider =
+    StateNotifierProvider<CommunityController, bool>((ref) {
   final communityRepository = ref.watch(communityRepositoryProvider);
   final storageRepository = ref.watch(storageRepositoryProvider);
   return CommunityController(
@@ -28,10 +31,14 @@ final communityControllerProvider = StateNotifierProvider<CommunityController, b
 });
 
 final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
-  return ref.watch(communityControllerProvider.notifier).getCommunityByName(name);
+  return ref
+      .watch(communityControllerProvider.notifier)
+      .getCommunityByName(name);
 });
 
-
+final searchCommunityProvider = StreamProvider.family((ref, String query) {
+  return ref.watch(communityControllerProvider.notifier).searchCommunity(query);
+});
 
 class CommunityController extends StateNotifier<bool> {
   final CommunityRepository _communityRepository;
@@ -66,7 +73,6 @@ class CommunityController extends StateNotifier<bool> {
     });
   }
 
-
   Stream<List<Community>> getUserCommunities() {
     final uid = _ref.read(userProvider)!.uid;
     return _communityRepository.getUserCommunities(uid);
@@ -93,8 +99,8 @@ class CommunityController extends StateNotifier<bool> {
         file: profileFile,
       );
       res.fold(
-            (l) => showSnackBar(context, l.message),
-            (r) => community = community.copyWith(avatar: r),
+        (l) => showSnackBar(context, l.message),
+        (r) => community = community.copyWith(avatar: r),
       );
     }
 
@@ -106,20 +112,50 @@ class CommunityController extends StateNotifier<bool> {
         file: bannerFile,
       );
       res.fold(
-            (l) => showSnackBar(context, l.message),
-            (r) => community = community.copyWith(banner: r),
+        (l) => showSnackBar(context, l.message),
+        (r) => community = community.copyWith(banner: r),
       );
     }
 
     final res = await _communityRepository.editCommunity(community);
     state = false;
     res.fold(
-          (l) => showSnackBar(context, l.message),
-          (r) => Routemaster.of(context).pop(),
+      (l) => showSnackBar(context, l.message),
+      (r) => Routemaster.of(context).pop(),
     );
   }
 
+  void joinCommunity(Community community, BuildContext context) async {
+    final userId = _ref.watch(userProvider)!.uid;
+    Either<Failure, void> res;
 
+    if (community.members.contains(userId)) {
+      res = await _communityRepository.leaveCommunity(userId, community.name);
+    } else {
+      res = await _communityRepository.joinCommunity(userId, community.name);
+    }
+    res.fold((l) {
+      showSnackBar(context, l.message);
+    }, (r) {
+      if (community.members.contains(userId)) {
+        showSnackBar(context, 'Community Left successfully');
+      } else {
+        showSnackBar(context, 'Community Joined successfully');
+      }
+    });
+  }
 
+  Stream<List<Community>> searchCommunity(String query) {
+    return _communityRepository.searchCommunity(query);
+  }
 
+  void addMods(
+      String communityName, List<String> uids, BuildContext context) async {
+    final res = await _communityRepository.addMods(communityName, uids);
+
+    res.fold(
+      (l) => showSnackBar(context, l.message),
+      (r) => Routemaster.of(context).pop(),
+    );
+  }
 }

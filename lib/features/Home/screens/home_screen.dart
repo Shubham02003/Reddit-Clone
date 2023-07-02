@@ -2,10 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reddit_clone/Home/drawer/community_list_drawer.dart';
-import 'package:reddit_clone/core/constants/constants.dart';
+import 'package:reddit_clone/features/Home/Delegates/search_community_delegrate.dart';
+import 'package:reddit_clone/features/Home/drawer/community_list_drawer.dart';
+import 'package:reddit_clone/features/Home/drawer/profile_drawer.dart';
 import 'package:reddit_clone/features/auth/controller/auth_controller.dart';
-import 'package:routemaster/routemaster.dart';
+
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,10 +16,13 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _page = 0;
+
 
   void displayDrawer(BuildContext context) {
     Scaffold.of(context).openDrawer();
+  }
+  void displayEndDrawer(BuildContext context) {
+    Scaffold.of(context).openEndDrawer();
   }
 
   @override
@@ -38,24 +42,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              showSearch(context: context, delegate: SearchCommunityDelegate(ref));
+            },
             icon: const Icon(Icons.search),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.add),
           ),
           Builder(builder: (context) {
             return IconButton(
               icon: CircleAvatar(
                 backgroundImage: NetworkImage(user.profilePic),
               ),
-              onPressed: () {},
+              onPressed: () =>displayEndDrawer(context),
             );
           }),
         ],
       ),
-      drawer: CommunityListDrawer(),
+      drawer: const CommunityListDrawer(),
+      endDrawer: const ProfileDrawer(),
       body: Center(
         child: Text(user.name),
       ),
