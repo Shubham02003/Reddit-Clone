@@ -7,8 +7,8 @@ import 'package:reddit_clone/theme/pallete.dart';
 class SignInButton extends ConsumerWidget {
   const SignInButton({Key? key}) : super(key: key);
 
-  void signWithGoogle(WidgetRef ref){
-    ref.read(authControllerProvider).signWithGoogle();
+  void signWithGoogle(WidgetRef ref,BuildContext context){
+    ref.read(authControllerProvider.notifier).signInWithGoogle(context);
   }
 
   @override
@@ -21,7 +21,7 @@ class SignInButton extends ConsumerWidget {
           width: 35,
         ),
         onPressed: () {
-          signWithGoogle(ref);
+          signWithGoogle(ref,context);
         },
         label: const Text(
           "Continue with google",
