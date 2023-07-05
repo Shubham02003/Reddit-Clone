@@ -28,7 +28,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider)!;
-    final isGuest = !user.isAuthenticate;
+    // final isGuest = !user.isAuthenticate;
 
     return Scaffold(
       appBar: AppBar(
