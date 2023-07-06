@@ -11,7 +11,7 @@ class UserProfileScreen extends ConsumerWidget {
   const UserProfileScreen({Key? key,required this.uid}) : super(key: key);
 
   void navigateToUserProfileEdit(BuildContext context){
-    Routemaster.of(context).push('/edit-user/$uid');
+    Routemaster.of(context).push('/edit-profile/$uid');
   }
 
   @override
@@ -35,7 +35,7 @@ class UserProfileScreen extends ConsumerWidget {
                       ),
                       Container(
                         alignment: Alignment.bottomLeft,
-                        padding: EdgeInsets.all(20).copyWith(bottom: 70),
+                        padding: const EdgeInsets.all(20).copyWith(bottom: 70),
                         child: CircleAvatar(
                           backgroundImage: NetworkImage(user.profilePic),
                           radius: 35,
@@ -84,8 +84,8 @@ class UserProfileScreen extends ConsumerWidget {
                             '${user.karma} karma',
                           ),
                         ),
-                        SizedBox(height: 10,),
-                        Divider(thickness: 2,)
+                        const SizedBox(height: 10,),
+                        const Divider(thickness: 2,)
                       ],
                     ),
                   ),

@@ -7,12 +7,18 @@ import 'package:routemaster/routemaster.dart';
 class ProfileDrawer extends ConsumerWidget {
   const ProfileDrawer({Key? key}) : super(key: key);
 
-  void logOut(WidgetRef ref)async {
+  void logOut(WidgetRef ref) async {
     ref.read(authControllerProvider.notifier).logOut();
   }
-  void navigateToProfileScreen(String uid,BuildContext context){
+
+  void navigateToProfileScreen(String uid, BuildContext context) {
     Routemaster.of(context).push('/u/$uid');
   }
+
+  void toggleTheme(WidgetRef ref) {
+    ref.read(themeNotifierProvider.notifier).toggleTheme();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider)!;
@@ -35,14 +41,21 @@ class ProfileDrawer extends ConsumerWidget {
             ListTile(
               title: const Text('My Profile'),
               leading: const Icon(Icons.person),
-              onTap: ()=>navigateToProfileScreen(user.uid, context),
+              onTap: () => navigateToProfileScreen(user.uid, context),
             ),
             ListTile(
               title: const Text('Log out'),
-              leading: Icon(Icons.logout,color:Pallete.redColor,),
-              onTap: ()=>logOut(ref),
+              leading: Icon(
+                Icons.logout,
+                color: Pallete.redColor,
+              ),
+              onTap: () => logOut(ref),
             ),
-            Switch.adaptive(value:true, onChanged: (value){})
+            Switch.adaptive(
+                value: ref.watch(themeNotifierProvider.notifier).mode==ThemeMode.dark,
+                onChanged: (value) {
+                  toggleTheme(ref);
+                })
           ],
         ),
       ),

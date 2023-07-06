@@ -1,5 +1,11 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, ThemeData>((ref) {
+  return ThemeNotifier();
+});
 
 class Pallete {
   // Colors
@@ -25,7 +31,8 @@ class Pallete {
       backgroundColor: drawerColor,
     ),
     primaryColor: redColor,
-   // backgroundColor: drawerColor, // will be used as alternative background color
+      bottomAppBarTheme: const BottomAppBarTheme(color: drawerColor)
+    // will be used as alternative background color
   );
 
   static var lightModeAppTheme = ThemeData.light().copyWith(
@@ -42,6 +49,40 @@ class Pallete {
       backgroundColor: whiteColor,
     ),
     primaryColor: redColor,
-   // backgroundColor: whiteColor,
+      bottomAppBarTheme: const BottomAppBarTheme(color: whiteColor)
   );
+}
+
+class ThemeNotifier extends StateNotifier<ThemeData>{
+
+  ThemeMode _mode;
+  ThemeNotifier({ThemeMode mode=ThemeMode.dark}):_mode=mode,super(Pallete.darkModeAppTheme){
+    getTheme();
+  }
+  void getTheme() async{
+    final SharedPreferences prefs=await SharedPreferences.getInstance();
+     final theme=prefs.getString('theme');
+
+     if(theme=='light'){
+       _mode=ThemeMode.light;
+       state=Pallete.lightModeAppTheme;
+     }else{
+       _mode=ThemeMode.dark;
+       state=Pallete.darkModeAppTheme;
+     }
+  }
+  ThemeMode get mode=>_mode;
+  void toggleTheme()async{
+    final SharedPreferences prefs=await SharedPreferences.getInstance();
+    final theme=prefs.getString('theme');
+    if(_mode==ThemeMode.dark){
+      _mode=ThemeMode.light;
+      state=Pallete.lightModeAppTheme;
+      prefs.setString('theme', 'light');
+    }else{
+      _mode=ThemeMode.dark;
+      state=Pallete.darkModeAppTheme;
+      prefs.setString('theme', 'dark');
+    }
+  }
 }

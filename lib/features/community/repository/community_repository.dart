@@ -16,6 +16,9 @@ class CommunityRepository {
   CommunityRepository({required FirebaseFirestore firestore})
       : _firestore = firestore;
 
+  CollectionReference get _communities =>
+      _firestore.collection(FirebaseConstants.communitiesCollection);
+
   FutureVoid createCommunity(Community community) async {
     try {
       var communityDoc = await _communities.doc(community.name).get();
@@ -118,6 +121,5 @@ class CommunityRepository {
     }
   }
 
-  CollectionReference get _communities =>
-      _firestore.collection(FirebaseConstants.communitiesCollection);
+
 }
