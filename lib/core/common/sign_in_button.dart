@@ -5,26 +5,25 @@ import 'package:reddit_clone/features/auth/controller/auth_controller.dart';
 import 'package:reddit_clone/theme/pallete.dart';
 
 class SignInButton extends ConsumerWidget {
-  const SignInButton({Key? key}) : super(key: key);
+  final bool isFromLogin;
+  const SignInButton({Key? key, this.isFromLogin = true}) : super(key: key);
 
-  void signWithGoogle(WidgetRef ref,BuildContext context){
-    ref.read(authControllerProvider.notifier).signInWithGoogle(context);
+  void signInWithGoogle(BuildContext context, WidgetRef ref) {
+    ref.read(authControllerProvider.notifier).signInWithGoogle(context, isFromLogin);
   }
 
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: const EdgeInsets.all(18.0),
       child: ElevatedButton.icon(
+        onPressed: () => signInWithGoogle(context, ref),
         icon: Image.asset(
-          Constants.googleLogoPath,
+          Constants.googlePath,
           width: 35,
         ),
-        onPressed: () {
-          signWithGoogle(ref,context);
-        },
         label: const Text(
-          "Continue with google",
+          'Continue with Google',
           style: TextStyle(fontSize: 18),
         ),
         style: ElevatedButton.styleFrom(

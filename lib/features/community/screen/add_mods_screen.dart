@@ -8,76 +8,86 @@ import 'package:reddit_clone/theme/pallete.dart';
 
 class AddModsScreen extends ConsumerStatefulWidget {
   final String name;
-  const AddModsScreen({Key? key, required this.name}) : super(key: key);
+  const AddModsScreen({
+    super.key,
+    required this.name,
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AddModsScreenState();
 }
 
 class _AddModsScreenState extends ConsumerState<AddModsScreen> {
-  Set<String>modUids ={};
-  int cnt=0;
-  void addUid(String uid){
+  Set<String> uids = {};
+  int ctr = 0;
+
+  void addUid(String uid) {
     setState(() {
-      modUids.add(uid);
+      uids.add(uid);
     });
   }
-  void removeUid(String uid){
+
+  void removeUid(String uid) {
     setState(() {
-      modUids.remove(uid);
+      uids.remove(uid);
     });
   }
-  void saveMods(){
-    ref.read(communityControllerProvider.notifier).addMods(widget.name , modUids.toList(), context);
+
+  void saveMods() {
+    ref.read(communityControllerProvider.notifier).addMods(
+      widget.name,
+      uids.toList(),
+      context,
+    );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
           IconButton(
-              onPressed:saveMods,
-              icon: Icon(
-                Icons.done_outline_outlined,
-                color: Pallete.greenColor,
-              ))
+            onPressed: saveMods,
+            icon: const Icon(Icons.done),
+          ),
         ],
       ),
       body: ref.watch(getCommunityByNameProvider(widget.name)).when(
-            data: (community) {
-              return ListView.builder(
-                itemCount: community.members.length,
-                itemBuilder: (context, index) {
-                  final member = community.members[index];
-                 return  ref.watch(getUserDataProvider(member)).when(
-                        data: (user) {
-                          if(community.mods.contains(member) && cnt==0){
-                            modUids.add(member);
-                          }
-                          cnt++;
-                          return CheckboxListTile(
-                            value: modUids.contains(user.uid),
-                            onChanged: (value){
-                              if(value!){
-                                removeUid(user.uid);
-                                addUid(user.uid);
-                              }else{
-                                removeUid(user.uid);
-                              }
-                            },
-                            title: Text(user.name),
-                          );
-                        },
-                        error: (error, stackTrace) =>
-                            ErrorText(error: error.toString()),
-                        loading: () => const Loader(),
-                      );
-                },
-              );
-            },
-            error: (error, stackTrace) => ErrorText(error: error.toString()),
-            loading: () => const Loader(),
-          ),
+        data: (community) => ListView.builder(
+          itemCount: community.members.length,
+          itemBuilder: (BuildContext context, int index) {
+            final member = community.members[index];
+
+            return ref.watch(getUserDataProvider(member)).when(
+              data: (user) {
+                if (community.mods.contains(member) && ctr == 0) {
+                  uids.add(member);
+                }
+                ctr++;
+                return CheckboxListTile(
+                  value: uids.contains(user.uid),
+                  onChanged: (val) {
+                    if (val!) {
+                      addUid(user.uid);
+                    } else {
+                      removeUid(user.uid);
+                    }
+                  },
+                  title: Text(user.name),
+                );
+              },
+              error: (error, stackTrace) => ErrorText(
+                error: error.toString(),
+              ),
+              loading: () => const Loader(),
+            );
+          },
+        ),
+        error: (error, stackTrace) => ErrorText(
+          error: error.toString(),
+        ),
+        loading: () => const Loader(),
+      ),
     );
   }
 }

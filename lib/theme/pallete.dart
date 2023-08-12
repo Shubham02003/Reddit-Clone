@@ -15,7 +15,6 @@ class Pallete {
   static const whiteColor = Colors.white;
   static var redColor = Colors.red.shade500;
   static var blueColor = Colors.blue.shade300;
-  static var greenColor=Colors.greenAccent;
 
   // Themes
   static var darkModeAppTheme = ThemeData.dark().copyWith(
@@ -31,8 +30,7 @@ class Pallete {
       backgroundColor: drawerColor,
     ),
     primaryColor: redColor,
-      bottomAppBarTheme: const BottomAppBarTheme(color: drawerColor)
-    // will be used as alternative background color
+    backgroundColor: drawerColor, // will be used as alternative background color
   );
 
   static var lightModeAppTheme = ThemeData.light().copyWith(
@@ -49,39 +47,45 @@ class Pallete {
       backgroundColor: whiteColor,
     ),
     primaryColor: redColor,
-      bottomAppBarTheme: const BottomAppBarTheme(color: whiteColor)
+    backgroundColor: whiteColor,
   );
 }
 
-class ThemeNotifier extends StateNotifier<ThemeData>{
-
+class ThemeNotifier extends StateNotifier<ThemeData> {
   ThemeMode _mode;
-  ThemeNotifier({ThemeMode mode=ThemeMode.dark}):_mode=mode,super(Pallete.darkModeAppTheme){
+  ThemeNotifier({ThemeMode mode = ThemeMode.dark})
+      : _mode = mode,
+        super(
+        Pallete.darkModeAppTheme,
+      ) {
     getTheme();
   }
-  void getTheme() async{
-    final SharedPreferences prefs=await SharedPreferences.getInstance();
-     final theme=prefs.getString('theme');
 
-     if(theme=='light'){
-       _mode=ThemeMode.light;
-       state=Pallete.lightModeAppTheme;
-     }else{
-       _mode=ThemeMode.dark;
-       state=Pallete.darkModeAppTheme;
-     }
+  ThemeMode get mode => _mode;
+
+  void getTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final theme = prefs.getString('theme');
+
+    if (theme == 'light') {
+      _mode = ThemeMode.light;
+      state = Pallete.lightModeAppTheme;
+    } else {
+      _mode = ThemeMode.dark;
+      state = Pallete.darkModeAppTheme;
+    }
   }
-  ThemeMode get mode=>_mode;
-  void toggleTheme()async{
-    final SharedPreferences prefs=await SharedPreferences.getInstance();
-    final theme=prefs.getString('theme');
-    if(_mode==ThemeMode.dark){
-      _mode=ThemeMode.light;
-      state=Pallete.lightModeAppTheme;
+
+  void toggleTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if (_mode == ThemeMode.dark) {
+      _mode = ThemeMode.light;
+      state = Pallete.lightModeAppTheme;
       prefs.setString('theme', 'light');
-    }else{
-      _mode=ThemeMode.dark;
-      state=Pallete.darkModeAppTheme;
+    } else {
+      _mode = ThemeMode.dark;
+      state = Pallete.darkModeAppTheme;
       prefs.setString('theme', 'dark');
     }
   }

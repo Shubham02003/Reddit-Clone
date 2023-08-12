@@ -3,6 +3,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reddit_clone/Responsive/responsive.dart';
 import 'package:reddit_clone/core/common/error_text.dart';
 import 'package:reddit_clone/core/common/loader.dart';
 import 'package:reddit_clone/core/constants/constants.dart';
@@ -11,7 +12,6 @@ import 'package:reddit_clone/features/community/controller/community_controller.
 import 'package:reddit_clone/theme/pallete.dart';
 
 import '../../../models/community_model.dart';
-
 
 class EditCommunityScreen extends ConsumerStatefulWidget {
   final String name;
@@ -76,9 +76,11 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(communityControllerProvider);
+    final currentTheme = ref.watch(themeNotifierProvider);
+
     return ref.watch(getCommunityByNameProvider(widget.name)).when(
       data: (community) => Scaffold(
-        backgroundColor: Pallete.blackColor,
+        backgroundColor: currentTheme.backgroundColor,
         appBar: AppBar(
           title: const Text('Edit Community'),
           centerTitle: false,
@@ -91,7 +93,8 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
         ),
         body: isLoading
             ? const Loader()
-            : Padding(
+            : Responsive(
+          child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
@@ -106,7 +109,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                           radius: const Radius.circular(10),
                           dashPattern: const [10, 4],
                           strokeCap: StrokeCap.round,
-                          color: Pallete.darkModeAppTheme.textTheme.bodyMedium!.color!,
+                          color: currentTheme.textTheme.bodyText2!.color!,
                           child: Container(
                             width: double.infinity,
                             height: 150,
@@ -155,7 +158,7 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
               ],
             ),
           ),
-
+        ),
       ),
       loading: () => const Loader(),
       error: (error, stackTrace) => ErrorText(

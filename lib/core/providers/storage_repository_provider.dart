@@ -1,6 +1,6 @@
 import 'dart:io';
-
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:reddit_clone/core/failure.dart';
@@ -12,6 +12,7 @@ final storageRepositoryProvider = Provider(
     firebaseStorage: ref.watch(storageProvider),
   ),
 );
+
 class StorageRepository {
   final FirebaseStorage _firebaseStorage;
 
@@ -21,11 +22,17 @@ class StorageRepository {
     required String path,
     required String id,
     required File? file,
+    required Uint8List? webFile,
   }) async {
     try {
       final ref = _firebaseStorage.ref().child(path).child(id);
       UploadTask uploadTask;
-      uploadTask = ref.putFile(file!);
+
+      if (kIsWeb) {
+        uploadTask = ref.putData(webFile!);
+      } else {
+        uploadTask = ref.putFile(file!);
+      }
 
       final snapshot = await uploadTask;
 

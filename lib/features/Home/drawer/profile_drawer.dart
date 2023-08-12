@@ -5,13 +5,13 @@ import 'package:reddit_clone/theme/pallete.dart';
 import 'package:routemaster/routemaster.dart';
 
 class ProfileDrawer extends ConsumerWidget {
-  const ProfileDrawer({Key? key}) : super(key: key);
+  const ProfileDrawer({super.key});
 
-  void logOut(WidgetRef ref) async {
-    ref.read(authControllerProvider.notifier).logOut();
+  void logOut(WidgetRef ref) {
+    ref.read(authControllerProvider.notifier).logout();
   }
 
-  void navigateToProfileScreen(String uid, BuildContext context) {
+  void navigateToUserProfile(BuildContext context, String uid) {
     Routemaster.of(context).push('/u/$uid');
   }
 
@@ -22,6 +22,7 @@ class ProfileDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider)!;
+
     return Drawer(
       child: SafeArea(
         child: Column(
@@ -30,21 +31,23 @@ class ProfileDrawer extends ConsumerWidget {
               backgroundImage: NetworkImage(user.profilePic),
               radius: 70,
             ),
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             Text(
               'u/${user.name}',
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
             ),
+            const SizedBox(height: 10),
             const Divider(),
             ListTile(
               title: const Text('My Profile'),
               leading: const Icon(Icons.person),
-              onTap: () => navigateToProfileScreen(user.uid, context),
+              onTap: () => navigateToUserProfile(context, user.uid),
             ),
             ListTile(
-              title: const Text('Log out'),
+              title: const Text('Log Out'),
               leading: Icon(
                 Icons.logout,
                 color: Pallete.redColor,
@@ -52,10 +55,9 @@ class ProfileDrawer extends ConsumerWidget {
               onTap: () => logOut(ref),
             ),
             Switch.adaptive(
-                value: ref.watch(themeNotifierProvider.notifier).mode==ThemeMode.dark,
-                onChanged: (value) {
-                  toggleTheme(ref);
-                })
+              value: ref.watch(themeNotifierProvider.notifier).mode == ThemeMode.dark,
+              onChanged: (val) => toggleTheme(ref),
+            ),
           ],
         ),
       ),
